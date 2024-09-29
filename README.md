@@ -7,6 +7,7 @@ This uses the [Oracle Cloud Infrastructure (OCI)](https://www.oracle.com/cloud/)
 ### Reference
 
 [https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account](https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account)
+[https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2](https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2)
 
 ### Documentation
 
