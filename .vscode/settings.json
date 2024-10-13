@@ -1,3 +1,19 @@
 {
-    "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "eeyore.yapf",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "isort.args": ["--profile", "black", "--line-length", "200"],
+  "pylint.path": ["${interpreter}", "-m", "pylint"],
+  "pylint.args": ["--rcfile=${workspaceFolder}/.pylintrc"]
 }

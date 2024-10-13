@@ -10,9 +10,11 @@ variable "ocis" {
     region           = string
     api_key_path     = string
     api_pub_key_path = string
-    instances = map(object({
-      id   = string
-      name = string
+    instances = list(object({
+      id               = string
+      name             = string
+      is_control_plane = bool
+      is_etcd          = bool
     }))
   }))
 }
