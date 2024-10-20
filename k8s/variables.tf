@@ -21,8 +21,15 @@ variable "ocis" {
 
 /* ------------------------------------------------------- SSH ------------------------------------------------------ */
 
+variable "ssh_user" {
+  description = "SSH user"
+  type        = string
+  default     = "opc"
+}
+
 variable "ssh_private_key" {
   description = "Path to the SSH private key"
   type        = string
   default     = "~/.ssh/id_rsa"
 }
+

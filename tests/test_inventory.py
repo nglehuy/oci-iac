@@ -11,7 +11,7 @@ from k8s.ansible.scripts.inventory import main
 def test():
   kube_control_planes = {
     "control-plane-1": {
-      "id": "control-plane-1",
+      "hostname_label": "control-plane-1",
       "private_ip": "10.0.0.1",
       "public_ip": "192.168.1.3",
     }
@@ -19,12 +19,12 @@ def test():
 
   kube_control_nodes = {
     "control-plane-1": {
-      "id": "control-plane-1",
+      "hostname_label": "control-plane-1",
       "private_ip": "10.0.0.1",
       "public_ip": "192.168.1.3",
     },
     "control-plane-2": {
-      "id": "control-plane-2",
+      "hostname_label": "control-plane-2",
       "private_ip": "10.0.0.2",
       "public_ip": "192.168.1.5",
     }
