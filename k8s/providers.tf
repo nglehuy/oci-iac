@@ -1,8 +1,10 @@
 provider "oci" {
-  alias            = var.ocis.nlhuycs.name
-  user_ocid        = var.ocis.nlhuycs.user
-  fingerprint      = var.ocis.nlhuycs.fingerprint
-  tenancy_ocid     = var.ocis.nlhuycs.tenancy
-  region           = var.ocis.nlhuycs.region
-  private_key_path = var.ocis.nlhuycs.api_key_path
+  alias            = "oci0" # value must be known before variable is defined
+  user_ocid        = var.ocis[0].user
+  fingerprint      = var.ocis[0].fingerprint
+  tenancy_ocid     = var.ocis[0].tenancy
+  region           = var.ocis[0].region
+  private_key_path = var.ocis[0].api_key_path
 }
+
+# add more oci provider block if needed

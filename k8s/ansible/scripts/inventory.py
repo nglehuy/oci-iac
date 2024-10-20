@@ -1,35 +1,26 @@
-import json
-from collections import defaultdict
+# pylint: disable=wrong-import-position,import-outside-toplevel
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import fire
-import toml
 
 
 def main(
-  kube_control_planes: str,
-  kube_nodes: str,
-  kube_etcds: str,
+  kube_control_planes: dict,
+  kube_nodes: dict,
   output_file: str,
 ):
-  kube_control_plane_instances = json.loads(kube_control_planes)
-  kube_nodes_instances = json.loads(kube_nodes)
-  kube_etcd_instances = json.loads(kube_etcds)
+  all_instances = {**kube_control_planes, **kube_nodes}
+  hosts = [",".join([instance["id"], instance["public_ip"], instance["private_ip"]]) for _, instance in all_instances.items()]
+  kube_control_hosts = len(kube_control_planes)
 
-  inventory = defaultdict(list)
-  for instance in kube_nodes_instances:
-    inventory["all"].append(f"{instance['id']} ansible_host={instance['public_ip']} ansible_user=opc ansible_become=true")
-    inventory["kube_nodes"].append(instance["id"])
+  os.environ["CONFIG_FILE"] = output_file
+  os.environ["KUBE_CONTROL_HOSTS"] = str(kube_control_hosts)
 
-  for instance in kube_control_plane_instances:
-    inventory["kube_control_plane"].append(instance["id"])
-
-  for instance in kube_etcd_instances:
-    inventory["etcd"].append(instance["id"])
-
-  inventory["k8s_cluster:children"] = ["kube_control_plane", "kube_nodes"]
-
-  with open(output_file, "w", encoding="utf-8") as f:
-    f.write(toml.dumps(inventory))
+  from kubespray.contrib.inventory_builder import inventory
+  inventory.main(hosts)
 
 
 if __name__ == "__main__":

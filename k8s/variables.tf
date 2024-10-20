@@ -2,7 +2,7 @@
 
 variable "ocis" {
   description = "OCI configurations"
-  type = map(object({
+  type = list(object({
     name             = string
     user             = string
     fingerprint      = string
@@ -14,7 +14,15 @@ variable "ocis" {
       id               = string
       name             = string
       is_control_plane = bool
-      is_etcd          = bool
     }))
   }))
+}
+
+
+/* ------------------------------------------------------- SSH ------------------------------------------------------ */
+
+variable "ssh_private_key" {
+  description = "Path to the SSH private key"
+  type        = string
+  default     = "~/.ssh/id_rsa"
 }

@@ -30,11 +30,15 @@
 #   }
 # }
 
-resource "null_resource" "inventory" {
+data "local_file" "inventory_script" {
+  filename = "./ansible/scripts/inventory.py"
+}
+
+resource "null_resource" "cluster" {
   triggers = {
     kube_control_plane_instances = jsonencode(data.oci_core_instance.kube_control_planes)
     kube_node_instances          = jsonencode(data.oci_core_instance.kube_nodes)
-    kube_etcd_instances          = jsonencode(data.oci_core_instance.kube_etcds)
+    inventory_script             = data.local_file.inventory_script.content
   }
 
   provisioner "local-exec" {
@@ -42,17 +46,18 @@ resource "null_resource" "inventory" {
       python3 ./scripts/inventory.py \
         --kube-control-planes '${jsonencode(data.oci_core_instance.kube_control_planes)}' \
         --kube-nodes '${jsonencode(data.oci_core_instance.kube_nodes)}' \
-        --kube-etcds '${jsonencode(data.oci_core_instance.kube_etcds)}' \
-        --output-file inventory.ini
+        --output-file hosts.yml
     EOT
     working_dir = "ansible"
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook -i inventory.ini playbook.yml"
-    working_dir = "ansible"
+    command     = <<-EOT
+      ansible-playbook -i ../hosts.yml cluster.yml -b -v --private-key=${var.ssh_private_key}
+    EOT
+    working_dir = "ansible/kubespray"
     environment = {
-      ANSIBLE_HOST_KEY_CHECKING = "false"
+      # ANSIBLE_HOST_KEY_CHECKING = "false"
     }
   }
 }
