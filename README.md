@@ -1,6 +1,6 @@
-# pers-infrastructure
+# OCI IaC (Infrastructure as Code)
 
-This repository contains infrastructure code for deploying kubernetes cluster on Oracle Cloud VMs.
+This repository contains infrastructure code for deploying kubernetes cluster on Oracle Cloud VMs
 
 This is written in [Terraform](https://www.terraform.io/) with custom python scripts.
 
