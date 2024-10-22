@@ -14,19 +14,12 @@ resource "null_resource" "cluster" {
   provisioner "local-exec" {
     when        = create
     command     = <<-EOT
-      python3 ./scripts/inventory.py \
+      python3 ../scripts/inventory.py \
         --kube-control-planes '${self.triggers.kube_control_plane_instances}' \
         --kube-nodes '${self.triggers.kube_node_instances}' \
-        --output-file hosts.yml
-    EOT
-    working_dir = "ansible"
-  }
-
-  provisioner "local-exec" {
-    when        = create
-    command     = <<-EOT
+        --output-file ../hosts.yml
       ansible-playbook -i ../hosts.yml cluster.yml \
-        -v --private-key=${var.ssh_private_key} -b -u ${var.ssh_user}
+        -v --private-key=${var.ssh_private_key} --become -u ${var.ssh_user}
     EOT
     working_dir = "ansible/kubespray"
   }
@@ -35,12 +28,9 @@ resource "null_resource" "cluster" {
     when        = destroy
     command     = <<-EOT
       ansible-playbook -i ../hosts.yml reset.yml \
-        -v --private-key=$ssh_private_key -b -u $ssh_user
+        -e skip_confirmation=yes -e reset_confirmation=yes \
+        -v --private-key=${self.triggers.ssh_private_key} --become -u ${self.triggers.ssh_user}
     EOT
     working_dir = "ansible/kubespray"
-    environment = {
-      ssh_private_key = self.triggers.ssh_private_key
-      ssh_user        = self.triggers.ssh_user
-    }
   }
 }

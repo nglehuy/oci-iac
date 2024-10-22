@@ -1,5 +1,4 @@
 fire~=0.7.0
 toml~=0.10.2
-jinja2~=3.1.4
 -r ./k8s/ansible/kubespray/contrib/inventory_builder/requirements.txt
 -r ./k8s/ansible/kubespray/requirements.txt
