@@ -8,6 +8,7 @@
     - [7. Update terraform.tfvars with OCI info, VMs info](#7-update-terraformtfvars-with-oci-info-vms-info)
     - [8. Apply k8s](#8-apply-k8s)
     - [9. \[Optional\] Destroy k8s](#9-optional-destroy-k8s)
+- [Access the kubernetes cluster](#access-the-kubernetes-cluster)
 
 
 # Setup kubernetes cluster (OCI)
@@ -103,3 +104,13 @@ terraform apply
 # inside k8s/ folder
 terraform destroy
 ```
+
+# Access the kubernetes cluster
+
+Add ingress rules to security list of controller VM to allow kubectl to access the cluster
+
+![OCI Subnet kubectl](./figs/oci-subnet-kubectl.png)
+
+The follow the reference
+
+Ref: [https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster)
