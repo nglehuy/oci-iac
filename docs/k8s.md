@@ -9,6 +9,10 @@
     - [8. Apply k8s](#8-apply-k8s)
     - [9. \[Optional\] Destroy k8s](#9-optional-destroy-k8s)
 - [Access the kubernetes cluster](#access-the-kubernetes-cluster)
+    - [1. Add ingress rules to security list of controller VM to allow kubectl to access the cluster](#1-add-ingress-rules-to-security-list-of-controller-vm-to-allow-kubectl-to-access-the-cluster)
+    - [2. Allow ports in firewall of controller VM](#2-allow-ports-in-firewall-of-controller-vm)
+    - [3. The follow the reference to get the kubeconfig file](#3-the-follow-the-reference-to-get-the-kubeconfig-file)
+    - [4. Fix kubeconfig file to allow insecure tls verify](#4-fix-kubeconfig-file-to-allow-insecure-tls-verify)
 
 
 # Setup kubernetes cluster (OCI)
@@ -107,10 +111,37 @@ terraform destroy
 
 # Access the kubernetes cluster
 
-Add ingress rules to security list of controller VM to allow kubectl to access the cluster
+### 1. Add ingress rules to security list of controller VM to allow kubectl to access the cluster
 
 ![OCI Subnet kubectl](./figs/oci-subnet-kubectl.png)
 
-The follow the reference
+### 2. Allow ports in firewall of controller VM
+
+```bash
+# oracle linux 8, ref: https://linuxconfig.org/redhat-8-open-and-close-ports
+sudo firewall-cmd --zone=public --list-ports
+sudo firewall-cmd --zone=public --permanent --add-port 6443/tcp
+sudo firewall-cmd --reload
+sudo firewall-cmd --zone=public --list-ports # check ports
+```
+
+### 3. The follow the reference to get the kubeconfig file
 
 Ref: [https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster)
+
+### 4. Fix kubeconfig file to allow insecure tls verify
+
+* Add `insecure-skip-tls-verify: true` to the kubeconfig file
+* Comment out `certificate-authority-data` line to disable tls verification
+
+```yaml
+# kubeconfig file
+apiVersion: v1
+clusters:
+- cluster:
+    # certificate-authority-data: XXXXXXXX
+    server: https://${CONTROLLER_PUBLIC_IP}:6443
+    insecure-skip-tls-verify: true # add this line
+  name: cluster.local
+...
+```
