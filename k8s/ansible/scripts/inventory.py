@@ -42,8 +42,10 @@ def main(
           "hosts": deepcopy(kube_control_planes_hosts),
         },
         "k8s_cluster": {
-          "kube_control_plane": None,
-          "kube_node": None,
+          "children": {
+            "kube_control_plane": None,
+            "kube_node": None,
+          }
         },
         "calico_rr": {
           "hosts": {},

@@ -27,6 +27,10 @@ resource "null_resource" "cluster" {
   provisioner "local-exec" {
     when        = destroy
     command     = <<-EOT
+      python3 ../scripts/inventory.py \
+        --kube-control-planes '${self.triggers.kube_control_plane_instances}' \
+        --kube-nodes '${self.triggers.kube_node_instances}' \
+        --output-file ../hosts.yml
       ansible-playbook -i ../hosts.yml reset.yml \
         -e skip_confirmation=yes -e reset_confirmation=yes \
         -v --private-key=${self.triggers.ssh_private_key} --become -u ${self.triggers.ssh_user}
