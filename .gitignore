@@ -180,5 +180,5 @@ cython_debug/
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python
 
-k8s/ansible/hosts.yml
+k8s/ansible/inventory
 *.lock

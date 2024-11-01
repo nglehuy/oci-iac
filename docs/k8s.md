@@ -122,13 +122,12 @@ terraform destroy
 sudo firewall-cmd --zone=public --list-ports
 sudo firewall-cmd --zone=public --permanent \
   --add-port 6443/tcp \
-  --add-port 10250/tcp \
-  --add-port 10259/tcp \
-  --add-port 10257/tcp \
+  --add-port 10250-10259/tcp \
   --add-port 2379-2380/tcp \
   --add-port 443/tcp \
   --add-port 80/tcp \
-  --add-port 9254/tcp
+  --add-port 9254/tcp \
+  --add-port 30000-32767/tcp
 sudo firewall-cmd --reload
 sudo firewall-cmd --zone=public --list-ports # check ports
 ```
