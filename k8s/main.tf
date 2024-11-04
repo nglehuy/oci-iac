@@ -1,77 +1,64 @@
+data "local_file" "group_vars_script" {
+  filename = "./ansible/scripts/group_vars.py"
+}
+
+resource "null_resource" "group_vars" {
+  triggers = {
+    script  = data.local_file.group_vars_script.content
+    command = <<-EOT
+      python3 scripts/group_vars.py \
+        --nlbs '${jsonencode(data.oci_network_load_balancer_network_load_balancer.kube_network_lbs)}' \
+        --output-file ./inventory/group_vars/all.yml
+    EOT
+  }
+
+  provisioner "local-exec" {
+    command     = self.triggers.command
+    working_dir = "ansible"
+  }
+}
+
 data "local_file" "inventory_script" {
   filename = "./ansible/scripts/inventory.py"
 }
 
-resource "local_file" "group_vars" {
-  content  = <<-EOT
-    helm_enabled: true
-
-    registry_enabled: true
-    registry_namespace: "kube-system"
-    registry_disk_size: "10Gi"
-
-    metrics_server_enabled: true
-    metrics_server_kubelet_insecure_tls: true
-
-    ingress_nginx_enabled: true
-
-    cert_manager_enabled: true
-
-    krew_enabled: true
-
-    ntp_enabled: true
-    ntp_timezone: Asia/Ho_Chi_Minh
-    ntp_manage_config: true
-    ntp_tinker_panic: true
-    ntp_force_sync_immediately: true
-
-    kube_network_plugin: "cilium" # to fit with metallb
-
-    metallb_enabled: true
-    metallb_namespace: "metallb-system"
-  EOT
-  filename = "./ansible/inventory/group_vars/all.yml"
-}
-
 resource "null_resource" "hosts" {
   triggers = {
-    kube_control_plane_instances = jsonencode(data.oci_core_instance.kube_control_planes)
-    kube_node_instances          = jsonencode(data.oci_core_instance.kube_nodes)
+    script  = data.local_file.inventory_script.content
+    command = <<-EOT
+      python3 scripts/inventory.py \
+        --kube-control-planes '${jsonencode(data.oci_core_instance.kube_control_planes)}' \
+        --kube-nodes '${jsonencode(data.oci_core_instance.kube_nodes)}' \
+        --output-file ./inventory/hosts.yml
+    EOT
   }
 
   provisioner "local-exec" {
-    command     = <<-EOT
-      python3 scripts/inventory.py \
-        --kube-control-planes '${self.triggers.kube_control_plane_instances}' \
-        --kube-nodes '${self.triggers.kube_node_instances}' \
-        --output-file ./inventory/hosts.yml
-    EOT
+    command     = self.triggers.command
     working_dir = "ansible"
   }
 }
 
 resource "null_resource" "cluster" {
   triggers = {
-    kube_control_plane_instances = jsonencode(data.oci_core_instance.kube_control_planes)
-    kube_node_instances          = jsonencode(data.oci_core_instance.kube_nodes)
-    ssh_private_key              = var.ssh_private_key
-    ssh_user                     = var.ssh_user
-    hosts_ref                    = null_resource.hosts.id
-    group_vars_content           = local_file.group_vars.content
-  }
-
-  depends_on = [
-    local_file.group_vars,
-    null_resource.hosts
-  ]
-
-  # list tags: https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible/ansible.md
-  provisioner "local-exec" {
-    when        = create
-    command     = <<-EOT
+    ssh_private_key = var.ssh_private_key
+    ssh_user        = var.ssh_user
+    hosts_ref       = null_resource.hosts.id
+    group_vars_ref  = null_resource.group_vars.id
+    command         = <<-EOT
       ansible-playbook -i ../inventory cluster.yml \
         -v --private-key=${var.ssh_private_key} --become -u ${var.ssh_user}
     EOT
+  }
+
+  depends_on = [
+    null_resource.group_vars,
+    null_resource.hosts
+  ]
+
+  provisioner "local-exec" {
+    when        = create
+    command     = self.triggers.command
     working_dir = "ansible/kubespray"
   }
 

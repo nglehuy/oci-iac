@@ -15,6 +15,7 @@ def main(
   kube_nodes: dict,
   output_file: str,
 ):
+  os.makedirs(os.path.dirname(output_file), exist_ok=True)
   kube_control_planes_hosts = {instance["hostname_label"]: None for instance in kube_control_planes.values()}
   kube_nodes_hosts = {instance["hostname_label"]: None for instance in kube_nodes.values()}
   hosts = {

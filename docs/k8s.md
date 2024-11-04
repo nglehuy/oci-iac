@@ -11,13 +11,17 @@
 - [Access the kubernetes cluster](#access-the-kubernetes-cluster)
     - [1. Add ingress rules to security list of controller VM to allow kubectl to access the cluster](#1-add-ingress-rules-to-security-list-of-controller-vm-to-allow-kubectl-to-access-the-cluster)
     - [2. Allow ports in firewall of controller VM](#2-allow-ports-in-firewall-of-controller-vm)
-    - [3. The follow the reference to get the kubeconfig file](#3-the-follow-the-reference-to-get-the-kubeconfig-file)
-    - [4. Fix kubeconfig file to allow insecure tls verify](#4-fix-kubeconfig-file-to-allow-insecure-tls-verify)
+    - [3. Get the kubeconfig file `~/.kube/oci_config`](#3-get-the-kubeconfig-file-kubeoci_config)
+    - [4. Tunnel to a node that's control plane](#4-tunnel-to-a-node-thats-control-plane)
+    - [5. Now you can use `kubectl` to access the cluster](#5-now-you-can-use-kubectl-to-access-the-cluster)
 
 
 # Setup kubernetes cluster (OCI)
 
-**Prerequisites:** `openssl` installed
+**Prerequisites:**
+- `openssl` installed
+- list of VMs in OCI already created
+- list of Network Load Balancers (NLB) in OCI already created and their backend sets point to the VMs
 
 ### 1. Create OCI api key
 
@@ -88,7 +92,11 @@ ocis = [
         name             = "node-2"
         is_control_plane = false
       }
-    ]
+    ],
+    nlbs = [{
+      id   = "ocid-of-nlb"
+      name = "nlb-1"
+    }]
   }
 ]
 ssh_private_key = "/path/to/ssh-private-key" # default is ~/.ssh/id_rsa
@@ -120,35 +128,33 @@ terraform destroy
 ```bash
 # oracle linux 8, ref: https://linuxconfig.org/redhat-8-open-and-close-ports
 sudo firewall-cmd --zone=public --list-ports
-sudo firewall-cmd --zone=public --permanent \
-  --add-port 6443/tcp \
-  --add-port 10250-10259/tcp \
-  --add-port 2379-2380/tcp \
-  --add-port 443/tcp \
-  --add-port 80/tcp \
-  --add-port 9254/tcp \
-  --add-port 30000-32767/tcp
+sudo firewall-cmd --permanent --add-service=http --add-service=https
+sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload
-sudo firewall-cmd --zone=public --list-ports # check ports
+sudo firewall-cmd --zone=public --list-all # check
+sudo firewall-cmd --zone=trusted --list-all # check
 ```
 
-### 3. The follow the reference to get the kubeconfig file
+### 3. Get the kubeconfig file `~/.kube/oci_config`
+
+Use `rsync` to a VM (node) that's control plane to copy the file
+
+```bash
+rsync -chavzP --stats --rsync-path="sudo rsync" opc@control-plane-node-public-ip:/etc/kubernetes/admin.conf ~/.kube/oci_config
+```
 
 Ref: [https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/setting-up-your-first-cluster.md#access-the-kubernetes-cluster)
 
-### 4. Fix kubeconfig file to allow insecure tls verify
+### 4. Tunnel to a node that's control plane
 
-* Add `insecure-skip-tls-verify: true` to the kubeconfig file
-* Comment out `certificate-authority-data` line to disable tls verification
+```bash
+ssh -L6443:localhost:6443 opc@control-plane-node-public-ip
+```
 
-```yaml
-# kubeconfig file
-apiVersion: v1
-clusters:
-- cluster:
-    # certificate-authority-data: XXXXXXXX
-    server: https://${CONTROLLER_PUBLIC_IP}:6443
-    insecure-skip-tls-verify: true # add this line
-  name: cluster.local
-...
+### 5. Now you can use `kubectl` to access the cluster
+
+```bash
+export KUBECONFIG=~/.kube/oci_config
+kubectl get nodes
+kubectl get pods --all-namespaces
 ```

@@ -16,6 +16,10 @@ variable "ocis" {
       name             = string
       is_control_plane = bool
     }))
+    nlbs = list(object({
+      id   = string
+      name = string
+    }))
   }))
 }
 
