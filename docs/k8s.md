@@ -127,7 +127,6 @@ terraform destroy
 
 ```bash
 # oracle linux 8, ref: https://linuxconfig.org/redhat-8-open-and-close-ports
-sudo firewall-cmd --zone=public --list-ports
 sudo firewall-cmd --permanent --add-service=http --add-service=https
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload

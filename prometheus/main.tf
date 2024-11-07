@@ -26,9 +26,11 @@ resource "helm_release" "this" {
   # Ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
   values = [
     "${templatefile("values.tftpl", {
-      ingress_host  = var.ingress_host
-      storage_class = "local-storage"
-      volume_name   = kubernetes_persistent_volume.server.metadata.0.name
+      ingress_host               = var.ingress_host
+      storage_class              = "local-storage"
+      volume_name                = kubernetes_persistent_volume.server.metadata.0.name
+      admin_password             = bcrypt(var.admin_password)
+      admin_user_password_base64 = base64encode("admin:${var.admin_password}")
     })}"
   ]
   set {

@@ -296,15 +296,15 @@ server:
   ## Custom HTTP headers for Liveness/Readiness/Startup Probe
   ##
   ## Useful for providing HTTP Basic Auth to healthchecks
-  probeHeaders: []
-    # - name: "Authorization"
-    #   value: "Bearer ABCDEabcde12345"
+  probeHeaders:
+    - name: Authorization
+      value: Bearer '${admin_user_password_base64}'
 
   ## Additional Prometheus server container arguments
   ## Set to null for argumentless flags
   ##
-  extraArgs: {}
-    # web.enable-remote-write-receiver: null
+  extraArgs:
+    web.config.file: /etc/config/web_config.yml
 
   ## Additional InitContainers to initialize the pod
   ##
@@ -362,13 +362,12 @@ server:
 
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
+    ingressClassName: nginx
 
     ## Prometheus server Ingress annotations
     ##
-    annotations: {}
-    #   kubernetes.io/ingress.class: nginx
-    #   kubernetes.io/tls-acme: 'true'
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-issuer"
 
     ## Prometheus server Ingress additional labels
     ##
@@ -382,8 +381,6 @@ server:
     ##
     hosts:
       - ${ingress_host}
-    #   - prometheus.domain.com
-    #   - domain.com/prometheus
 
     path: /
 
@@ -623,7 +620,7 @@ server:
   ## Prometheus server readiness and liveness probe initial delay and timeout
   ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   ##
-  tcpSocketProbeEnabled: false
+  tcpSocketProbeEnabled: true
   probeScheme: HTTP
   readinessProbeInitialDelay: 30
   readinessProbePeriodSeconds: 5
@@ -784,6 +781,10 @@ serverFiles:
   recording_rules.yml: {}
   ## DEPRECATED DEFAULT VALUE, unless explicitly naming your files, please use recording_rules.yml
   rules: {}
+
+  web_config.yml:
+    basic_auth_users:
+      admin: '${admin_password}'
 
   prometheus.yml:
     rule_files:

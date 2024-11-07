@@ -33,10 +33,12 @@ def main(
 
     # ingress
     "ingress_nginx_enabled": True,
+    "ingress_nginx_host_network": True,  # to allow nginx-ingress from public nlb works
     "ingress_nginx_service_type": "LoadBalancer",
 
     # certs
     "cert_manager_enabled": True,
+    "cert_manager_namespace": "cert-manager",
 
     # network time protocol
     "ntp_enabled": True,
