@@ -54,7 +54,7 @@ terraform apply
 
 ```bash
 # cert-manager
-cd apps/cert-manager
+cd apps/common
 terraform init -reconfigure -upgrade
 terraform apply
 
