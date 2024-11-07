@@ -18,6 +18,10 @@ def main(
     # others
     "helm_enabled": True,
 
+    # volumes
+    "local_volume_provisioner_enabled": True,
+    "local_volume_provisioner_namespace": "kube-system",
+
     # registry
     "registry_enabled": True,
     "registry_namespace": "kube-system",

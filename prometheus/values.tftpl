@@ -1,0 +1,15 @@
+ingress:
+  enabled: false
+  hosts:
+    - ${ingress_host}
+  annotations:
+    # see: https://github.com/kubernetes-sigs/kubespray/blob/b7c1d68ea30bbf2e5077afeb22e8924db6cb3b59/docs/advanced/cert_manager.md#create-new-tls-root-ca-certificate-and-key
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+  tls:
+    - secretName: prometheus-tls
+      hosts:
+        - ${ingress_host}
+
+server:
+  persistentVolume:
+    size: 2Gi
