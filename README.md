@@ -5,7 +5,11 @@
       - [2. Install Python Environment](#2-install-python-environment)
       - [3. Install K8s Cluster](#3-install-k8s-cluster)
       - [3. Install Apps](#3-install-apps)
-    - [Reference](#reference)
+    - [References](#references)
+      - [1. OCI + K8s](#1-oci--k8s)
+      - [2. Metallb + Ingress Nginx](#2-metallb--ingress-nginx)
+      - [3. Cert-Manager](#3-cert-manager)
+      - [4. Prometheus](#4-prometheus)
 
 # OCI IaC (Infrastructure as Code)
 
@@ -60,7 +64,17 @@ terraform init -reconfigure -upgrade
 terraform apply
 ```
 
-### Reference
+### References
 
-[https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account](https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account)
-[https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2](https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2)
+#### 1. OCI + K8s
+- [https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account](https://docs.oracle.com/en/learn/oci-oke-multicluster-k8s-terraform/index.html#task-25-create-an-api-key-in-the-oci-console-and-add-the-public-key-to-your-oci-account)
+- [https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2](https://olav.ninja/deploying-kubernetes-cluster-on-proxmox-part-2)
+
+#### 2. Metallb + Ingress Nginx
+- [https://nvtienanh.info/blog/cai-dat-metallb-va-ingress-nginx-tren-bare-metal-kubernetes-cluster](https://nvtienanh.info/blog/cai-dat-metallb-va-ingress-nginx-tren-bare-metal-kubernetes-cluster#metallb--ingress-nginx)
+
+#### 3. Cert-Manager
+- [https://cert-manager.io/docs/tutorials/acme/nginx-ingress/](https://cert-manager.io/docs/tutorials/acme/nginx-ingress/)
+
+#### 4. Prometheus
+- [https://github.com/prometheus-community/helm-charts/issues/1255#issuecomment-2038475024](https://github.com/prometheus-community/helm-charts/issues/1255#issuecomment-2038475024)
