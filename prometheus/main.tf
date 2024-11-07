@@ -19,16 +19,20 @@ resource "helm_release" "this" {
   version    = local.version
   namespace  = local.namespace
   depends_on = [
-    kubernetes_namespace.this
+    kubernetes_namespace.this,
+    kubernetes_persistent_volume.server,
+    kubernetes_persistent_volume_claim.server,
   ]
   # Ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
   values = [
     "${templatefile("values.tftpl", {
-      ingress_host = var.ingress_host
+      ingress_host  = var.ingress_host
+      storage_class = "local-storage"
+      volume_name   = kubernetes_persistent_volume.server.metadata.0.name
     })}"
   ]
   set {
-    name  = "ingress.enabled"
+    name  = "server.ingress.enabled"
     value = var.ingress_host != "" ? true : false
   }
 }
