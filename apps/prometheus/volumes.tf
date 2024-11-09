@@ -1,8 +1,6 @@
-/* ----------------------------------------------------- SERVER ----------------------------------------------------- */
-
-resource "kubernetes_persistent_volume" "server" {
+resource "kubernetes_persistent_volume" "prometheus" {
   metadata {
-    name = "prometheus-server"
+    name = "prometheus"
   }
   spec {
     capacity = {
@@ -27,21 +25,7 @@ resource "kubernetes_persistent_volume" "server" {
       }
     }
   }
-}
-
-resource "kubernetes_persistent_volume_claim" "server" {
-  metadata {
-    name      = "prometheus-server"
-    namespace = local.namespace
-  }
-  spec {
-    access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "local-storage"
-    resources {
-      requests = {
-        storage = "2Gi"
-      }
-    }
-    volume_name = kubernetes_persistent_volume.server.metadata.0.name
+  lifecycle {
+    prevent_destroy = true
   }
 }

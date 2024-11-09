@@ -3,8 +3,8 @@ variable "kube_config_path" {
   default     = "~/.kube/config"
 }
 
-variable "ingress_host" {
-  description = "Ingress host for prometheus"
+variable "grafana_ingress_host" {
+  description = "Grafana ingress host for prometheus"
   default     = ""
 }
 

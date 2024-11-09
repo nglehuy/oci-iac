@@ -1,8 +1,8 @@
 locals {
-  name       = "prometheus"
+  name       = "kube-prometheus-stack"
   repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "prometheus"
-  version    = "25.29.0"
+  chart      = "kube-prometheus-stack"
+  version    = "65.8.1"
   namespace  = "prometheus"
 }
 
@@ -20,21 +20,21 @@ resource "helm_release" "this" {
   namespace  = local.namespace
   depends_on = [
     kubernetes_namespace.this,
-    kubernetes_persistent_volume.server,
-    kubernetes_persistent_volume_claim.server,
+    kubernetes_persistent_volume.prometheus,
   ]
   # Ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
   values = [
     "${templatefile("values.tftpl", {
-      ingress_host               = var.ingress_host
-      storage_class              = "local-storage"
-      volume_name                = kubernetes_persistent_volume.server.metadata.0.name
-      admin_password             = bcrypt(var.admin_password)
-      admin_user_password_base64 = base64encode("admin:${var.admin_password}")
+      grafana_ingress_host   = var.grafana_ingress_host
+      prometheus_volume_name = kubernetes_persistent_volume.prometheus.metadata.0.name
     })}"
   ]
   set {
-    name  = "server.ingress.enabled"
-    value = var.ingress_host != "" ? true : false
+    name  = "grafana.ingress.enabled"
+    value = var.grafana_ingress_host != "" ? true : false
+  }
+  set {
+    name  = "grafana.adminPassword"
+    value = var.admin_password
   }
 }
