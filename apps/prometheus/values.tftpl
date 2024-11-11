@@ -3940,13 +3940,15 @@ prometheus:
       ## Using PersistentVolumeClaim
       volumeClaimTemplate:
         spec:
-          storageClassName: "local-storage"
+          storageClassName: "local-ocfs2-storage"
           accessModes:
             - "ReadWriteOnce"
           resources:
             requests:
-              storage: 2Gi
-          volumeName: ${prometheus_volume_name}
+              storage: 5Gi
+            limits:
+              storage: 5Gi
+          volumeName: ""
 
     ## Using tmpfs volume
     ##

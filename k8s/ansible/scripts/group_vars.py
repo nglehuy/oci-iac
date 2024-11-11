@@ -21,6 +21,20 @@ def main(
     # volumes
     "local_volume_provisioner_enabled": True,
     "local_volume_provisioner_namespace": "kube-system",
+    "local_volume_provisioner_storage_classes": {
+      "local-storage": {
+        "host_dir": "/mnt/disks",
+        "mount_dir": "/mnt/disks",
+        "volume_mode": "Filesystem",
+        "fs_type": "ext4"
+      },
+      "local-ocfs2-storage": {
+        "host_dir": "/ocfs2",
+        "mount_dir": "/ocfs2",
+        "volume_mode": "Filesystem",
+        "fs_type": "ocfs2"
+      }
+    },
 
     # registry
     "registry_enabled": True,

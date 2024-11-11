@@ -4,10 +4,11 @@
     - [3. Collect OCI info](#3-collect-oci-info)
     - [4. Add ssh public key to OCI VMs](#4-add-ssh-public-key-to-oci-vms)
     - [5. Go to subnet of VMs, add option to security list to allow communication between VMs](#5-go-to-subnet-of-vms-add-option-to-security-list-to-allow-communication-between-vms)
-    - [6. Goto k8s folder](#6-goto-k8s-folder)
-    - [7. Update terraform.tfvars with OCI info, VMs info](#7-update-terraformtfvars-with-oci-info-vms-info)
-    - [8. Apply k8s](#8-apply-k8s)
-    - [9. \[Optional\] Destroy k8s](#9-optional-destroy-k8s)
+    - [6. Attach Shared Volume to VMs](#6-attach-shared-volume-to-vms)
+    - [7. Goto k8s folder](#7-goto-k8s-folder)
+    - [8. Update terraform.tfvars with OCI info, VMs info](#8-update-terraformtfvars-with-oci-info-vms-info)
+    - [9. Apply k8s](#9-apply-k8s)
+    - [10. \[Optional\] Destroy k8s](#10-optional-destroy-k8s)
 - [Access the kubernetes cluster](#access-the-kubernetes-cluster)
     - [1. Add ingress rules to security list of controller VM to allow kubectl to access the cluster](#1-add-ingress-rules-to-security-list-of-controller-vm-to-allow-kubectl-to-access-the-cluster)
     - [2. Allow ports in firewall of controller VM](#2-allow-ports-in-firewall-of-controller-vm)
@@ -57,14 +58,19 @@ cat ~/.ssh/authorized_keys
 ![OCI Instance Subnet](./figs/oci-instance-subnet.png)
 ![OCI Subnet Security List](./figs/oci-subnet-security-list.png)
 
+### 6. Attach Shared Volume to VMs
 
-### 6. Goto k8s folder
+- Create shared block volume in OCI
+- Attach the volume to VMs
+- Follow the instruction [https://blogs.oracle.com/cloud-infrastructure/post/using-the-multiple-instance-attach-block-volume-feature-to-create-a-shared-file-system-on-oracle-cloud-infrastructure](https://blogs.oracle.com/cloud-infrastructure/post/using-the-multiple-instance-attach-block-volume-feature-to-create-a-shared-file-system-on-oracle-cloud-infrastructure)
+
+### 7. Goto k8s folder
 
 ```bash
 cd k8s
 ```
 
-### 7. Update terraform.tfvars with OCI info, VMs info
+### 8. Update terraform.tfvars with OCI info, VMs info
 
 Get values from OCI console and `~/.oci/config`
 
@@ -102,7 +108,7 @@ ocis = [
 ssh_private_key = "/path/to/ssh-private-key" # default is ~/.ssh/id_rsa
 ```
 
-### 8. Apply k8s
+### 9. Apply k8s
 
 ```bash
 # inside k8s/ folder
@@ -110,7 +116,7 @@ terraform init -reconfigure -upgrade
 terraform apply
 ```
 
-### 9. [Optional] Destroy k8s
+### 10. [Optional] Destroy k8s
 
 ```bash
 # inside k8s/ folder
