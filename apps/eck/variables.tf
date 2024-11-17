@@ -3,15 +3,7 @@ variable "kube_config_path" {
   default     = "~/.kube/config"
 }
 
-variable "admin_password" {
-  description = "Admin password"
-}
-
 /* -------------------------------------------------- ELASTICSEARCH ------------------------------------------------- */
-
-variable "elasticsearch_username" {
-  description = "Elasticsearch username"
-}
 
 variable "elasticsearch_password" {
   description = "Elasticsearch password"
@@ -19,12 +11,12 @@ variable "elasticsearch_password" {
 
 variable "elasticsearch_request_cpu" {
   description = "Elasticsearch request CPU"
-  default     = "250m"
+  default     = "200m"
 }
 
 variable "elasticsearch_request_memory" {
   description = "Elasticsearch request memory"
-  default     = "1Gi"
+  default     = "2Gi"
 }
 
 variable "elasticsearch_limit_cpu" {
@@ -34,7 +26,7 @@ variable "elasticsearch_limit_cpu" {
 
 variable "elasticsearch_limit_memory" {
   description = "Elasticsearch limit memory"
-  default     = "2Gi"
+  default     = "3Gi"
 }
 
 /* ----------------------------------------------------- KIBANA ----------------------------------------------------- */
@@ -42,10 +34,6 @@ variable "elasticsearch_limit_memory" {
 variable "kibana_ingress_host" {
   description = "Ingress host for kibana"
   default     = ""
-}
-
-variable "kibana_username" {
-  description = "Kibana username"
 }
 
 variable "kibana_password" {

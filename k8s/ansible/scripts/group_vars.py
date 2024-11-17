@@ -35,6 +35,12 @@ def main(
         "fs_type": "ocfs2"
       }
     },
+    "local_path_provisioner_enabled": True,
+    "local_path_provisioner_namespace": "kube-system",
+    "local_path_provisioner_storage_class": "local-ocfs2-path",
+    "local_path_provisioner_reclaim_policy": "Delete",
+    "local_path_provisioner_claim_root": "/ocfs2/local-path-provisioner/",
+    "local_path_provisioner_is_default_storageclass": "true",
 
     # registry
     "registry_enabled": True,
