@@ -36,10 +36,6 @@ variable "kibana_ingress_host" {
   default     = ""
 }
 
-variable "kibana_password" {
-  description = "Kibana password"
-}
-
 variable "kibana_request_cpu" {
   description = "Kibana request CPU"
   default     = "100m"

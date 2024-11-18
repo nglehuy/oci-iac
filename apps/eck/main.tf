@@ -122,6 +122,8 @@ spec:
   count: 1
   elasticsearchRef:
     name: elasticsearch
+  config:
+    server.publicBaseUrl: ${var.kibana_ingress_host != "" ? "https://${var.kibana_ingress_host}" : ""}
   podTemplate:
     spec:
       containers:
@@ -136,10 +138,10 @@ spec:
             limits:
               cpu: ${var.kibana_limit_cpu}
               memory: ${var.kibana_limit_memory}
-      http:
-        tls:
-          selfSignedCertificate:
-            disabled: true   
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true   
 YAML
 
   provisioner "local-exec" {
@@ -179,8 +181,7 @@ resource "kubernetes_ingress_v1" "kibana" {
               }
             }
           }
-          path_type = "ImplementationSpecific"
-          path      = "/?(.*)"
+          path = "/"
         }
       }
     }
@@ -192,55 +193,135 @@ resource "kubernetes_ingress_v1" "kibana" {
   depends_on = [kubectl_manifest.kibana]
 }
 
-# resource "kubectl_manifest" "filebeat" {
-#   yaml_body = <<YAML
-# apiVersion: beat.k8s.elastic.co/v1beta1
-# kind: Beat
-# metadata:
-#   name: filebeat
-# spec:
-#   type: filebeat
-#   version: 8.16.0
-#   elasticsearchRef:
-#     name: elasticsearch
-#   config:
-#     filebeat.inputs:
-#     - type: container
-#       paths:
-#       - /var/log/containers/*.log
-#   daemonSet:
-#     podTemplate:
-#       spec:
-#         dnsPolicy: ClusterFirstWithHostNet
-#         hostNetwork: true
-#         securityContext:
-#           runAsUser: 0
-#         containers:
-#         - name: filebeat
-#           volumeMounts:
-#           - name: varlogcontainers
-#             mountPath: /var/log/containers
-#           - name: varlogpods
-#             mountPath: /var/log/pods
-#           - name: varlibdockercontainers
-#             mountPath: /var/lib/docker/containers
-#         volumes:
-#         - name: varlogcontainers
-#           hostPath:
-#             path: /var/log/containers
-#         - name: varlogpods
-#           hostPath:
-#             path: /var/log/pods
-#         - name: varlibdockercontainers
-#           hostPath:
-#             path: /var/lib/docker/containers
-# YAML
+resource "kubernetes_cluster_role" "filebeat" {
+  metadata {
+    name = "filebeat"
+  }
+  rule {
+    api_groups = [""]
+    resources  = ["pods", "namespaces", "nodes"]
+    verbs      = ["get", "list", "watch"]
+  }
+  rule {
+    api_groups = ["apps"]
+    resources  = ["replicasets"]
+    verbs      = ["get", "list", "watch"]
+  }
+  rule {
+    api_groups = ["batch"]
+    resources  = ["jobs"]
+    verbs      = ["get", "list", "watch"]
+  }
+}
 
-#   provisioner "local-exec" {
-#     command = "sleep 60"
-#   }
-#   depends_on = [helm_release.elastic, kubectl_manifest.elasticsearch]
-# }
+resource "kubernetes_service_account" "filebeat" {
+  metadata {
+    name      = "filebeat"
+    namespace = local.namespace
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "filebeat" {
+  metadata {
+    name = "filebeat"
+  }
+  role_ref {
+    kind      = "ClusterRole"
+    name      = "filebeat"
+    api_group = "rbac.authorization.k8s.io"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "filebeat"
+    namespace = local.namespace
+  }
+  depends_on = [kubernetes_cluster_role.filebeat]
+}
+
+resource "kubectl_manifest" "filebeat" {
+  yaml_body = <<YAML
+apiVersion: beat.k8s.elastic.co/v1beta1
+kind: Beat
+metadata:
+  name: filebeat
+  namespace: ${local.namespace}
+spec:
+  type: filebeat
+  version: ${local.version}
+  elasticsearchRef:
+    name: elasticsearch
+  kibanaRef:
+    name: kibana
+  config:
+    filebeat:
+      autodiscover:
+        providers:
+        - type: kubernetes
+          node: $${NODE_NAME}
+          hints:
+            enabled: true
+            default_config:
+              type: container
+              paths:
+              - /var/log/containers/*$${data.kubernetes.container.id}.log
+    processors:
+    - add_cloud_metadata: {}
+    - add_host_metadata: {}
+  daemonSet:
+    podTemplate:
+      spec:
+        serviceAccountName: ${kubernetes_service_account.filebeat.metadata.0.name}
+        automountServiceAccountToken: true
+        terminationGracePeriodSeconds: 30
+        dnsPolicy: ClusterFirstWithHostNet
+        hostNetwork: true # Allows to provide richer host metadata
+        containers:
+        - name: filebeat
+          securityContext:
+            runAsUser: 0
+          resources:
+            requests:
+              cpu: ${var.filebeat_request_cpu}
+              memory: ${var.filebeat_request_memory}
+            limits:
+              cpu: ${var.filebeat_limit_cpu}
+              memory: ${var.filebeat_limit_memory}
+          volumeMounts:
+          - name: varlogcontainers
+            mountPath: /var/log/containers
+          - name: varlogpods
+            mountPath: /var/log/pods
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+        volumes:
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+YAML
+
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+  depends_on = [
+    helm_release.elastic,
+    kubectl_manifest.elasticsearch,
+    kubectl_manifest.kibana,
+    kubernetes_cluster_role.filebeat,
+    kubernetes_service_account.filebeat,
+    kubernetes_cluster_role_binding.filebeat
+  ]
+}
 
 
 # resource "kubectl_manifest" "logstash" {
