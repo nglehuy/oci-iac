@@ -88,7 +88,7 @@ variable "filebeat_request_cpu" {
 
 variable "filebeat_request_memory" {
   description = "Filebeat request memory"
-  default     = "100Mi"
+  default     = "200Mi"
 }
 
 variable "filebeat_limit_cpu" {
@@ -98,5 +98,5 @@ variable "filebeat_limit_cpu" {
 
 variable "filebeat_limit_memory" {
   description = "Filebeat limit memory"
-  default     = "200Mi"
+  default     = "256Mi"
 }

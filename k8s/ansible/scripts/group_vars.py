@@ -27,12 +27,6 @@ def main(
         "mount_dir": "/mnt/disks",
         "volume_mode": "Filesystem",
         "fs_type": "ext4"
-      },
-      "local-ocfs2-storage": {
-        "host_dir": "/ocfs2",
-        "mount_dir": "/ocfs2",
-        "volume_mode": "Filesystem",
-        "fs_type": "ocfs2"
       }
     },
     "local_path_provisioner_enabled": True,

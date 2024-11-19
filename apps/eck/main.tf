@@ -38,8 +38,8 @@ metadata:
 spec:
   version: ${local.version}
   nodeSets:
-    - name: master
-      count: 1
+    - name: default
+      count: 2
       podTemplate:
         spec:
           containers:
@@ -56,39 +56,7 @@ spec:
                   value: "-Xms1g -Xmx1g"
       config:
         node.store.allow_mmap: false
-        node.roles: ["master"]
-        bootstrap.memory_lock: true
-      volumeClaimTemplates:
-        - metadata:
-            name: elasticsearch-data
-          spec:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 10Gi
-              limits:
-                storage: 10Gi
-            storageClassName: local-ocfs2-path
-    - name: data
-      count: 1
-      podTemplate:
-        spec:
-          containers:
-            - name: elasticsearch
-              resources:
-                requests:
-                  cpu: ${var.elasticsearch_request_cpu}
-                  memory: ${var.elasticsearch_request_memory}
-                limits:
-                  cpu: ${var.elasticsearch_limit_cpu}
-                  memory: ${var.elasticsearch_limit_memory}
-              env:
-                - name: ES_JAVA_OPTS
-                  value: "-Xms512m -Xmx512m"
-      config:
-        node.store.allow_mmap: false
-        node.roles: ["data"]
+        node.roles: ["master", "data", "ingest"]
         bootstrap.memory_lock: true
       volumeClaimTemplates:
         - metadata:
@@ -253,20 +221,21 @@ spec:
   kibanaRef:
     name: kibana
   config:
-    filebeat:
-      autodiscover:
-        providers:
-        - type: kubernetes
-          node: $${NODE_NAME}
-          hints:
-            enabled: true
-            default_config:
-              type: container
-              paths:
-              - /var/log/containers/*$${data.kubernetes.container.id}.log
+    filebeat.autodiscover:
+      providers:
+      - type: kubernetes
+        node: $${NODE_NAME}
+        hints:
+          enabled: true
+          default_config:
+            type: container
+            paths:
+            - /var/log/containers/*.log
+            - /var/lib/docker/containers/*/*.log
     processors:
     - add_cloud_metadata: {}
     - add_host_metadata: {}
+    - add_kubernetes_metadata: {}
   daemonSet:
     podTemplate:
       spec:
