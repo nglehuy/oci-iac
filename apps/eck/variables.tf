@@ -56,28 +56,6 @@ variable "kibana_limit_memory" {
   default     = "2Gi"
 }
 
-/* ---------------------------------------------------- LOGSTASH ---------------------------------------------------- */
-
-variable "logstash_request_cpu" {
-  description = "Logstash request CPU"
-  default     = "100m"
-}
-
-variable "logstash_request_memory" {
-  description = "Logstash request memory"
-  default     = "1Gi"
-}
-
-variable "logstash_limit_cpu" {
-  description = "Logstash limit CPU"
-  default     = "500m"
-}
-
-variable "logstash_limit_memory" {
-  description = "Logstash limit memory"
-  default     = "1536Mi"
-}
-
 
 /* ---------------------------------------------------- FILEBEAT ---------------------------------------------------- */
 

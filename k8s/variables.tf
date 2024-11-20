@@ -37,3 +37,10 @@ variable "ssh_private_key" {
   type        = string
   default     = "~/.ssh/id_rsa"
 }
+
+/* ---------------------------------------------------- REGISTRY ---------------------------------------------------- */
+
+variable "registry_htpasswd" {
+  description = "Registry htpassword"
+  type        = string
+}

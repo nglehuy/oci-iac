@@ -8,6 +8,7 @@ resource "null_resource" "group_vars" {
     command = <<-EOT
       python3 scripts/group_vars.py \
         --nlbs '${jsonencode(data.oci_network_load_balancer_network_load_balancer.kube_network_lbs)}' \
+        --registry-htpasswd "${var.registry_htpasswd}" \
         --output-file ./inventory/group_vars/all.yml
     EOT
   }

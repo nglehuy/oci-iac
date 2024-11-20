@@ -133,11 +133,13 @@ terraform destroy
 
 ```bash
 # oracle linux 8, ref: https://linuxconfig.org/redhat-8-open-and-close-ports
-sudo firewall-cmd --permanent --add-service=http --add-service=https
+sudo firewall-cmd --permanent --zone=public --add-service=http --add-service=https
+sudo firewall-cmd --permanent --zone=public --add-port 51820/udp
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload
 sudo firewall-cmd --zone=public --list-all # check
 sudo firewall-cmd --zone=trusted --list-all # check
+sudo ethtool --offload cilium_vxlan tx-checksum-ip-generic off
 ```
 
 ### 3. Get the kubeconfig file `~/.kube/oci_config`

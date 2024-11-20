@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 
 def main(
   nlbs: dict,
+  registry_htpasswd: str,
   output_file: str,
 ):
   os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -19,16 +20,8 @@ def main(
     "helm_enabled": True,
 
     # volumes
-    "local_volume_provisioner_enabled": True,
+    "local_volume_provisioner_enabled": False,
     "local_volume_provisioner_namespace": "kube-system",
-    "local_volume_provisioner_storage_classes": {
-      "local-storage": {
-        "host_dir": "/mnt/disks",
-        "mount_dir": "/mnt/disks",
-        "volume_mode": "Filesystem",
-        "fs_type": "ext4"
-      }
-    },
     "local_path_provisioner_enabled": True,
     "local_path_provisioner_namespace": "kube-system",
     "local_path_provisioner_storage_class": "local-ocfs2-path",
@@ -39,7 +32,10 @@ def main(
     # registry
     "registry_enabled": True,
     "registry_namespace": "kube-system",
-    "registry_disk_size": "10Gi",
+    "registry_disk_size": "20Gi",
+    "registry_storage_class": "local-ocfs2-path",
+    "registry_replica_count": 2,
+    "registry_htpasswd": registry_htpasswd,
 
     # metrics
     "metrics_server_enabled": True,
@@ -47,6 +43,7 @@ def main(
 
     # ingress
     "ingress_nginx_enabled": True,
+    "ingress_nginx_namespace": "kube-system",
     "ingress_nginx_host_network": True,  # to allow nginx-ingress from public nlb works
     "ingress_nginx_service_type": "LoadBalancer",
 
