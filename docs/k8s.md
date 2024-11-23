@@ -11,7 +11,7 @@
     - [10. \[Optional\] Destroy k8s](#10-optional-destroy-k8s)
 - [Access the kubernetes cluster](#access-the-kubernetes-cluster)
     - [1. Add ingress rules to security list of controller VM to allow kubectl to access the cluster](#1-add-ingress-rules-to-security-list-of-controller-vm-to-allow-kubectl-to-access-the-cluster)
-    - [2. Allow ports in firewall of controller VM](#2-allow-ports-in-firewall-of-controller-vm)
+    - [2. Allow ports in firewall of controller VM, fix ethtool cilium\_vxlan, iptables](#2-allow-ports-in-firewall-of-controller-vm-fix-ethtool-cilium_vxlan-iptables)
     - [3. Get the kubeconfig file `~/.kube/oci_config`](#3-get-the-kubeconfig-file-kubeoci_config)
     - [4. Tunnel to a node that's control plane](#4-tunnel-to-a-node-thats-control-plane)
     - [5. Now you can use `kubectl` to access the cluster](#5-now-you-can-use-kubectl-to-access-the-cluster)
@@ -106,6 +106,7 @@ ocis = [
   }
 ]
 ssh_private_key = "/path/to/ssh-private-key" # default is ~/.ssh/id_rsa
+registry_htpasswd = "your-password-for-registry"
 ```
 
 ### 9. Apply k8s
@@ -129,17 +130,34 @@ terraform destroy
 
 ![OCI Subnet kubectl](./figs/oci-subnet-kubectl.png)
 
-### 2. Allow ports in firewall of controller VM
+### 2. Allow ports in firewall of controller VM, fix ethtool cilium_vxlan, iptables
 
 ```bash
 # oracle linux 8, ref: https://linuxconfig.org/redhat-8-open-and-close-ports
 sudo firewall-cmd --permanent --zone=public --add-service=http --add-service=https
-sudo firewall-cmd --permanent --zone=public --add-port 51820/udp
+sudo firewall-cmd --permanent --zone=public \
+  --add-port 80/tcp \
+  --add-port 443/tcp \
+  --add-port 51820/udp \
+  --add-port 6443/tcp \
+  --add-port 2379-2380/tcp \
+  --add-port 9254/tcp \
+  --add-port 10250/tcp \
+  --add-port 10256/tcp \
+  --add-port 10257/tcp \
+  --add-port 10259/tcp \
+  --add-port 30000-32767/tcp
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload
 sudo firewall-cmd --zone=public --list-all # check
 sudo firewall-cmd --zone=trusted --list-all # check
+# fix ethtool cilium_vxlan
 sudo ethtool --offload cilium_vxlan tx-checksum-ip-generic off
+# fix iptables
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -F
 ```
 
 ### 3. Get the kubeconfig file `~/.kube/oci_config`

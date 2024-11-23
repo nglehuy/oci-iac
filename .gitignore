@@ -182,3 +182,5 @@ cython_debug/
 
 k8s/ansible/inventory
 *.lock
+
+.DS_Store
