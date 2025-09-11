@@ -146,7 +146,14 @@ sudo firewall-cmd --permanent --zone=public \
   --add-port 10256/tcp \
   --add-port 10257/tcp \
   --add-port 10259/tcp \
-  --add-port 30000-32767/tcp
+  --add-port 30000-32767/tcp \
+  --add-port 25/tcp \
+  --add-port 465/tcp \
+  --add-port 587/tcp \
+  --add-port 143/tcp \
+  --add-port 993/tcp \
+  --add-port 110/tcp \
+  --add-port 995/tcp
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload
 sudo firewall-cmd --zone=public --list-all # check
