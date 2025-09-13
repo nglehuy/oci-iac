@@ -9,5 +9,9 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = ">= 2.32.0"
     }
+    external = {
+      source  = "hashicorp/external"
+      version = ">= 2.3.5"
+    }
   }
 }

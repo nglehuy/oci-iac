@@ -2,6 +2,14 @@ data "local_file" "group_vars_script" {
   filename = "./ansible/scripts/group_vars.py"
 }
 
+data "external" "kubespray_version" {
+  program = ["bash", "-c", <<EOT
+    cd ${path.module}/ansible/kubespray
+    git rev-parse HEAD | jq -R '{commit: .}'
+  EOT
+  ]
+}
+
 resource "null_resource" "group_vars" {
   triggers = {
     script  = data.local_file.group_vars_script.content
@@ -42,13 +50,14 @@ resource "null_resource" "hosts" {
 
 resource "null_resource" "cluster" {
   triggers = {
-    ssh_private_key = var.ssh_private_key
-    ssh_user        = var.ssh_user
-    hosts_ref       = null_resource.hosts.id
-    group_vars_ref  = null_resource.group_vars.id
-    command         = <<-EOT
+    ssh_private_key   = var.ssh_private_key
+    ssh_user          = var.ssh_user
+    hosts_ref         = null_resource.hosts.id
+    group_vars_ref    = null_resource.group_vars.id
+    kubespray_version = data.external.kubespray_version.result.commit
+    command           = <<-EOT
       ansible-playbook -i ../inventory cluster.yml \
-        -v --private-key=${var.ssh_private_key} --become -u ${var.ssh_user}
+        -v --private-key=${var.ssh_private_key} --become -u ${var.ssh_user} -e upgrade_cluster_setup=true
     EOT
   }
 

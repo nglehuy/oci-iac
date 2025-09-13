@@ -158,8 +158,9 @@ sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.0.0/8
 sudo firewall-cmd --reload
 sudo firewall-cmd --zone=public --list-all # check
 sudo firewall-cmd --zone=trusted --list-all # check
-# fix ethtool cilium_vxlan
+# fix ethtool cilium_vxlan or calico vxlan
 sudo ethtool --offload cilium_vxlan tx-checksum-ip-generic off
+sudo ethtool --offload vxlan.calico rx off tx off
 # fix iptables
 sudo iptables -P INPUT ACCEPT
 sudo iptables -P FORWARD ACCEPT

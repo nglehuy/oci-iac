@@ -59,9 +59,15 @@ def main(
     "ntp_force_sync_immediately": True,
 
     # kube
-    "kube_network_plugin": "cilium",
+    "kube_network_plugin": "calico",
     "kube_proxy_strict_arp": True,
     "kube_apiserver_port": 6443,
+
+    # nodelocaldns
+    "enable_nodelocaldns": False,
+    "enable_nodelocaldns_secondary": False,
+    "nodelocaldns_ip": "169.254.25.10",
+    "nodelocaldns_image_tag": "1.26.4",
 
     # load balancers
     "metallb_enabled": True,
