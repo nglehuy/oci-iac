@@ -46,6 +46,7 @@ def main(
     "ingress_nginx_namespace": "kube-system",
     "ingress_nginx_host_network": True,  # to allow nginx-ingress from public nlb works
     "ingress_nginx_service_type": "LoadBalancer",
+    "ingress_nginx_extra_args": ["--enable-ssl-passthrough"],
 
     # certs
     "cert_manager_enabled": True,
