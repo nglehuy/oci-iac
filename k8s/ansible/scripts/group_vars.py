@@ -13,6 +13,8 @@ def main(
   nlbs: dict,
   registry_htpasswd: str,
   output_file: str,
+  mailserver_namespace: str,
+  mailserver_service: str,
 ):
   os.makedirs(os.path.dirname(output_file), exist_ok=True)
   data = {
@@ -47,6 +49,15 @@ def main(
     "ingress_nginx_host_network": True,  # to allow nginx-ingress from public nlb works
     "ingress_nginx_service_type": "LoadBalancer",
     "ingress_nginx_extra_args": ["--enable-ssl-passthrough"],
+    "ingress_nginx_configmap_tcp_services": {
+      25: f"{mailserver_service}/{mailserver_service}:25",
+      110: f"{mailserver_namespace}/{mailserver_service}:110",
+      143: f"{mailserver_namespace}/{mailserver_service}:143",
+      465: f"{mailserver_namespace}/{mailserver_service}:465",
+      587: f"{mailserver_namespace}/{mailserver_service}:587",
+      993: f"{mailserver_namespace}/{mailserver_service}:993",
+      995: f"{mailserver_namespace}/{mailserver_service}:995",
+    },
 
     # certs
     "cert_manager_enabled": True,

@@ -44,3 +44,16 @@ variable "registry_htpasswd" {
   description = "Registry htpassword"
   type        = string
 }
+
+
+/* --------------------------------------------------- MAILSERVER --------------------------------------------------- */
+
+variable "mailserver_namespace" {
+  description = "Namespace for mailserver. E.g. kube-system"
+  type        = string
+}
+
+variable "mailserver_service" {
+  description = "Mailserver service name. E.g. my-mailserver-docker-mailserver"
+  type        = string
+}

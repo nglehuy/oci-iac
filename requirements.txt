@@ -1,4 +1,4 @@
 fire~=0.7.0
 toml~=0.10.2
--r ./k8s/ansible/kubespray/contrib/inventory_builder/requirements.txt
+ruamel.yaml~=0.18.15
 -r ./k8s/ansible/kubespray/requirements.txt
