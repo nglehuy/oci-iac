@@ -50,7 +50,7 @@ def main(
     "ingress_nginx_service_type": "LoadBalancer",
     "ingress_nginx_extra_args": ["--enable-ssl-passthrough"],
     "ingress_nginx_configmap_tcp_services": {
-      25: f"{mailserver_service}/{mailserver_service}:25",
+      25: f"{mailserver_namespace}/{mailserver_service}:25",
       110: f"{mailserver_namespace}/{mailserver_service}:110",
       143: f"{mailserver_namespace}/{mailserver_service}:143",
       465: f"{mailserver_namespace}/{mailserver_service}:465",
